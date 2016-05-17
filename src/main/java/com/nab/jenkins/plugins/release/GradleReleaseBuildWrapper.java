@@ -1,7 +1,10 @@
 package com.nab.jenkins.plugins.release;
 
+import hudson.EnvVars;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Action;
@@ -9,10 +12,13 @@ import hudson.model.Build;
 import hudson.model.BuildListener;
 import hudson.model.Hudson;
 import hudson.model.Item;
+import hudson.model.Result;
 import hudson.security.Permission;
 import hudson.security.PermissionGroup;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import hudson.util.ArgumentListBuilder;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
 import org.jvnet.localizer.Localizable;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -24,6 +30,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
+@Slf4j
 public class GradleReleaseBuildWrapper extends BuildWrapper {
 
   @DataBoundConstructor
@@ -42,12 +49,58 @@ public class GradleReleaseBuildWrapper extends BuildWrapper {
 
   @Override public Environment setUp(AbstractBuild build, Launcher launcher, BuildListener listener)
       throws IOException, InterruptedException {
+    log.info("Run release build");
+    runGradle(build, launcher, listener);
     return null;
   }
 
-  @Override public Environment setUp(Build build, Launcher launcher, BuildListener listener)
+  private boolean runGradle(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
       throws IOException, InterruptedException {
-    return null;
+    GradleLogger gradleLogger = new GradleLogger(listener);
+    EnvVars env = build.getEnvironment(listener);
+
+    // args
+    ArgumentListBuilder args = new ArgumentListBuilder();
+
+    //We are using the wrapper and don't care about the installed gradle versions
+    String execName = (launcher.isUnix())
+        ? GradleInstallation.UNIX_GRADLE_WRAPPER_COMMAND
+        : GradleInstallation.WINDOWS_GRADLE_WRAPPER_COMMAND;
+    FilePath normalizedRootBuildScriptDir = new FilePath(build.getModuleRoot(), "build.gradle");
+    FilePath gradleWrapperFile = new FilePath(normalizedRootBuildScriptDir, execName);
+    gradleWrapperFile.chmod(0744);
+    args.add(gradleWrapperFile.getRemote());
+
+    FilePath rootLauncher;
+    rootLauncher = normalizedRootBuildScriptDir;
+    if (rootLauncher == null) {
+      rootLauncher = build.getProject().getSomeWorkspace();
+    }
+
+    try {
+      GradleConsoleAnnotator gca = new GradleConsoleAnnotator(
+          listener.getLogger(), build.getCharset());
+      int r;
+      try {
+        r = launcher.launch().cmds(args).envs(env).stdout(gca)
+            .pwd(rootLauncher).join();
+      } finally {
+        gca.forceEol();
+      }
+      boolean success = r == 0;
+      // if the build is successful then set it as success otherwise as a failure.
+      build.setResult(Result.SUCCESS);
+      if (!success) {
+        build.setResult(Result.FAILURE);
+      }
+      return success;
+    } catch (IOException e) {
+      Util.displayIOException(e, listener);
+      e.printStackTrace(listener.fatalError("command execution failed"));
+      build.setResult(Result.FAILURE);
+      return false;
+    }
+
   }
 
   @Override
