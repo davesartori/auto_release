@@ -1,0 +1,40 @@
+*.log
+*.class
+
+# Package Files #
+*.jar
+gradle.properties
+!gradle-wrapper.jar
+*.war
+*.ear
+
+.gradle/
+gradle/
+build/
+/classes/
+out/
+/conf/
+
+# IDE Project files #
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# nodejs #
+node_modules/
+npm-debug.log
+/bin/
+
+# WAS Liberty files #
+wlp/
+.classpath
+.project
+.settings
+
+# ignore log files
+/[0-9]*
+
+#wsdl generated sources
+generatedSources/
+/performance/results/**
