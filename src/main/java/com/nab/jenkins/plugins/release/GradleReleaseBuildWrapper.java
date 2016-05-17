@@ -66,7 +66,7 @@ public class GradleReleaseBuildWrapper extends BuildWrapper {
     String execName = (launcher.isUnix())
         ? GradleInstallation.UNIX_GRADLE_WRAPPER_COMMAND
         : GradleInstallation.WINDOWS_GRADLE_WRAPPER_COMMAND;
-    FilePath normalizedRootBuildScriptDir = new FilePath(build.getModuleRoot(), "build.gradle");
+    FilePath normalizedRootBuildScriptDir = new FilePath(build.getModuleRoot(), "");
     FilePath gradleWrapperFile = new FilePath(normalizedRootBuildScriptDir, execName);
     gradleWrapperFile.chmod(0744);
     args.add(gradleWrapperFile.getRemote());
