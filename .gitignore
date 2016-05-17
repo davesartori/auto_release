@@ -9,7 +9,6 @@ gradle.properties
 *.ear
 
 .gradle/
-gradle/
 build/
 /classes/
 out/
