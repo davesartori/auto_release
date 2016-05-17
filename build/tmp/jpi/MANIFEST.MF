@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Long-Name: Auto release
+Group-Id: com.nab.jenkins.plugins
+Extension-Name: auto-release
+Plugin-Version: 1.0.0
+Jenkins-Version: 2.5
+Plugin-Class: com.nab.jenkins.plugins.release.PluginImpl
+Url: http://wiki.jenkins-ci.org/display/JENKINS/SomePluginPage
+Short-Name: auto-release
+

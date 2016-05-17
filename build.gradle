@@ -1,0 +1,40 @@
+plugins {
+    id "org.jenkins-ci.jpi" version "0.17.0"
+}
+
+group = "com.nab.jenkins.plugins"
+version = "1.0.0"
+description = "Adds a link to kick off the Gradle NAB Release plugin."
+
+jenkinsPlugin {
+    coreVersion = "2.5"
+    displayName = "Auto release"
+    url = "http://wiki.jenkins-ci.org/display/JENKINS/SomePluginPage"
+    gitHubUrl = "https://github.aus.thenational.com/ATDCIB/jenkins_auto_release"
+    shortName = "auto-release"
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'idea'
+
+ext {
+    artifactoryHost = System.getenv("ARTIFACTORY_HOST") ?: '10.40.250.118'
+}
+
+repositories {
+    mavenLocal()
+    maven { url "http://$artifactoryHost/artifactory/ib301" }
+    maven { url "http://$artifactoryHost/artifactory/repo" }
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile('org.jenkins-ci.plugins:plugin:2.9')
+    compile('org.jenkins-ci.plugins:scriptler:2.2')
+    compile('org.jenkins-ci.lib:dry-run-lib:0.1')
+
+    providedCompile("org.projectlombok:lombok:1.16.6")
+}
