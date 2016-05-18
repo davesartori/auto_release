@@ -1,3 +1,16 @@
+buildscript {
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath files('/Users/davidsartori/Documents/projects/nab/gradle_auto_release/build/libs/gradle-auto-release-1.0.0.jar')
+        classpath 'org.eclipse.jgit:org.eclipse.jgit:4.3.1.201605051710-r'
+    }
+}
+
 plugins {
     id "org.jenkins-ci.jpi" version "0.17.0"
 }
@@ -18,15 +31,11 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'idea'
+apply plugin: 'com.nab.ese.gradle.autorelease'
 
-ext {
-    artifactoryHost = System.getenv("ARTIFACTORY_HOST") ?: '10.40.250.118'
-}
 
 repositories {
     mavenLocal()
-    maven { url "http://$artifactoryHost/artifactory/ib301" }
-    maven { url "http://$artifactoryHost/artifactory/repo" }
     mavenCentral()
     jcenter()
 }
