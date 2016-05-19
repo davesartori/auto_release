@@ -17,7 +17,6 @@ plugins {
 }
 
 group = "com.nab.jenkins.plugins"
-version = "1.0.0"
 description = "Adds a link to kick off the Gradle NAB Release plugin."
 
 jenkinsPlugin {
