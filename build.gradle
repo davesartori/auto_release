@@ -8,6 +8,7 @@ buildscript {
     dependencies {
         classpath files('/Users/davidsartori/Documents/projects/nab/gradle_auto_release/build/libs/gradle-auto-release-1.0.0.jar')
         classpath 'org.eclipse.jgit:org.eclipse.jgit:4.3.1.201605051710-r'
+        classpath "net.researchgate:gradle-release:2.3.5"
     }
 }
 
@@ -26,6 +27,15 @@ jenkinsPlugin {
     gitHubUrl = "https://github.aus.thenational.com/ATDCIB/jenkins_auto_release"
     shortName = "auto-release"
 }
+
+def isJenkinsBuild = rootProject.hasProperty('buildNumber')
+
+def jenkinsSnapShot() {
+    ((['origin/master', 'origin/release'].contains(rootProject.getProperty('branch'))) ? rootProject.getProperty('buildNumber')
+            : 'snapshot-' + rootProject.getProperty('buildNumber'))
+}
+
+def versionBackup = version
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
@@ -47,3 +57,31 @@ dependencies {
 
     providedCompile("org.projectlombok:lombok:1.16.6")
 }
+
+
+
+
+
+import java.util.regex.Matcher
+
+apply plugin: 'net.researchgate.release'
+
+war {
+    version = version + '-' + (isJenkinsBuild ? jenkinsSnapShot() : 'local-snapshot')
+}
+
+release {
+    newVersionCommitMessage = 'RELEASE - version increment'
+    version = versionBackup
+    git {
+        requireBranch = 'release'
+        versionPatterns = [
+                // Increments minor number: "2.5.17-SNAPSHOT" => "2.6.0-SNAPSHOT"
+                /[.]*\.(\d+)\.(\d+)[.]*/: { Matcher m, Project p -> m.replaceAll(".${(m[0][1] as int) + 1}.0") }
+        ]
+        pushToRemote = 'origin'
+        pushToBranchPrefix = ''
+    }
+}
+
+createReleaseTag.dependsOn build
