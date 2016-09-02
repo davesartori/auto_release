@@ -82,11 +82,12 @@ public class AutoReleaseTask extends DefaultTask {
     System.out.print("Create remote release branch based on develop...");
     CreateBranchCommand bcc = git.branchCreate();
     bcc.setName("release")
-        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+        .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
         .setStartPoint("origin/develop")
         .setForce(true)
         .call();
-    push.setRefSpecs(new RefSpec("release:release"));
+    RefSpec refSpec = new RefSpec().setSourceDestination("release", "release");
+    push.setRefSpecs(refSpec);
     push.call();
     System.out.println("Done.");
 
