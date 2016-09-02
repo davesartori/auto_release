@@ -86,7 +86,7 @@ public class AutoReleaseTask extends DefaultTask {
 //        .setStartPoint("origin/develop")
 //        .setForce(true)
 //        .call();
-    push.setRefSpecs(new RefSpec().setSourceDestination("release", "release"));
+    push.setRefSpecs(new RefSpec().setSourceDestination("release", "origin/release"));
     push.call();
     System.out.println("Done.");
 
