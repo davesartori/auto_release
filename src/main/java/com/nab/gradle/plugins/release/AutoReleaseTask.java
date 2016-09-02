@@ -5,6 +5,8 @@ import com.jcraft.jsch.Session;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.SimpleEmail;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -29,9 +31,12 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
+import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
@@ -39,9 +44,27 @@ import java.util.regex.Pattern;
 public class AutoReleaseTask extends DefaultTask {
 
   public static void main(String... args) throws Exception {
-    autoRelease();
+    final Git git = Git.open(new File("."));
+
+    String engine = new File("a").getAbsoluteFile().getParentFile().getName();
+
+    PropertiesConfiguration config = new PropertiesConfiguration("gradle.properties");
+    String version = config.getProperty("versionNumber").toString() + "-" + System.getProperty("BUILD_NUMBER");
 
 
+    sendEmail(engine, version);
+  }
+
+  public static void sendEmail(String engine, String message) throws Exception {
+    Email email = new SimpleEmail();
+    Collection<InternetAddress> addresses = new ArrayList<>();
+    addresses.add(new InternetAddress("david.sartori@nab.com.au", "David Sartori"));
+    email.setTo(addresses);
+    email.setSubject("Release cut info for: " + engine);
+    email.setMsg(message);
+    email.setHostName("bulksmtp.national.com.au");
+    email.setFrom("no-reply@nab.com.au");
+    email.send();
   }
 
   @TaskAction
