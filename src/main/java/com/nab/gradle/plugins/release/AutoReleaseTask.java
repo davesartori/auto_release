@@ -38,8 +38,14 @@ import java.util.regex.Pattern;
 
 public class AutoReleaseTask extends DefaultTask {
 
+  public static void main(String... args) throws Exception {
+    autoRelease();
+
+
+  }
+
   @TaskAction
-  public void autoRelease() throws Exception {
+  public static void autoRelease() throws Exception {
     final Git git = Git.open(new File("."));
 
     Config storedConfig = git.getRepository().getConfig();
@@ -99,7 +105,7 @@ public class AutoReleaseTask extends DefaultTask {
     System.out.println("Done.");
   }
 
-  private void checkIfAllMasterCommitsAreInDevelop(List<String> commitsOnMaster, List<String> commitsOnDevelop)
+  private static void checkIfAllMasterCommitsAreInDevelop(List<String> commitsOnMaster, List<String> commitsOnDevelop)
       throws Exception {
     List<String> msgs = new ArrayList<>();
     for (String s : commitsOnMaster) {
@@ -115,7 +121,7 @@ public class AutoReleaseTask extends DefaultTask {
     }
   }
 
-  private CredentialsProvider allowHosts = new CredentialsProvider() {
+  private static CredentialsProvider allowHosts = new CredentialsProvider() {
     @Override
     public boolean supports(CredentialItem... items) {
       return true;
@@ -132,7 +138,7 @@ public class AutoReleaseTask extends DefaultTask {
     }
   };
 
-  private List<String> getCommits(String branchName) throws IOException {
+  private static List<String> getCommits(String branchName) throws IOException {
     Git git = Git.open(new File("."));
     RefDatabase refDatabase = git.getRepository().getRefDatabase();
     Ref branch = refDatabase.getRef("refs/remotes/origin/" + branchName);
@@ -149,7 +155,7 @@ public class AutoReleaseTask extends DefaultTask {
     return commits;
   }
 
-  private void incrementVersion() throws ConfigurationException {
+  private static void incrementVersion() throws ConfigurationException {
     PropertiesConfiguration config = new PropertiesConfiguration("gradle.properties");
     String[] currentVersion;
     try {
@@ -165,13 +171,13 @@ public class AutoReleaseTask extends DefaultTask {
     config.save();
   }
 
-  private void setCredentials(String gitRepoUri, TransportCommand lsRemote) throws Exception {
+  private static void setCredentials(String gitRepoUri, TransportCommand lsRemote) throws Exception {
     if (gitRepoUri.toUpperCase().contains("HTTPS")) {
       String username = "";
       String password = "";
       try {
-        username = getProject().property("username") != null ? getProject().property("username").toString() : "";
-        password = getProject().property("password") != null ? getProject().property("password").toString() : "";
+        username = "davidsartori@gmail.com";
+        password = "Dirtbike1";
       } catch (Exception e) {
       }
       lsRemote.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
@@ -201,7 +207,7 @@ public class AutoReleaseTask extends DefaultTask {
 
   }
 
-  private void checkIfReleaseExists(Git git, String gitRepoUri) throws Exception {
+  private static void checkIfReleaseExists(Git git, String gitRepoUri) throws Exception {
     final LsRemoteCommand lsRemote = git.lsRemote();
     lsRemote.setRemote("origin");
     setCredentials(gitRepoUri, lsRemote);
