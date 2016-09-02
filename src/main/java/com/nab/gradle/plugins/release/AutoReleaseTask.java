@@ -88,7 +88,7 @@ public class AutoReleaseTask extends DefaultTask {
 //        .call();
     git.checkout().setName("release").setCreateBranch(true).call();
 
-    push.setRefSpecs(new RefSpec().setSourceDestination("release", "origin/release"));
+    push.setRefSpecs(new RefSpec().setSourceDestination("release", "release"));
     push.call();
     System.out.println("Done.");
 
